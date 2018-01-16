@@ -14,6 +14,11 @@ If you want to contribute to our repository (push, open pull requests), please u
 
 A small but powerful library for writing and reading CSV files. Supports buffered stream-input, so you don't have to have all of it in RAM. 
 
+This project helps you to read and write CSV (Comma Separated Values) files in your program.
+Those files are legacy, but many developers still use them because of their readability and because every sheet-calculation program can perfectly edit them.
+With the classes in this project you can read/write them via a stream, so that not every byte of the CSV has to be in memory beforehand and they provide nice interfaces for all functions.
+Give it a try.
+
 
 > **If you like this repo, please don't forget to star it.**
 > **Thank you.**
@@ -22,7 +27,44 @@ A small but powerful library for writing and reading CSV files. Supports buffere
 
 ## Getting Started
 
-TBD
+### StringReader
+
+```c#
+StringReader stringReader = new StringReader("\"test\";test1;A 01;t;;");
+
+CsvReader csvReader = new CsvReader(stringReader, ';', "\n", '\"');
+List<string> row = csvReader.ReadRow();
+```
+
+
+
+### StringWriter
+
+```c#
+CsvWriter csvWriter = new CsvWriter(new StringBuilder(), ';', "\n", '\"');
+
+csvWriter.Write("Great");
+csvWriter.Write("Totally");
+csvWriter.Write("This is a\nbreak");
+// The next two lines do the same as calling csvWriter.writeLine("");
+csvWriter.Write();
+csvWriter.WriteLine();
+
+csvWriter.Write();
+csvWriter.Write("Gr;eat");
+csvWriter.WriteLine("Totally");
+
+csvWriter.Write("Great");
+csvWriter.Write("ssfe\"s");
+csvWriter.Write("");
+csvWriter.Write("Totally");
+
+csvWriter.Flush();
+```
+
+
+
+
 
 [homepage]: http://www.unterrainer.info
 [coding]: http://www.unterrainer.info/Home/Coding
