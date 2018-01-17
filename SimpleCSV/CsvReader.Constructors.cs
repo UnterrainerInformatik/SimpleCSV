@@ -33,6 +33,21 @@ namespace SimpleCsv
 {
     public partial class CsvReader : CsvBase
     {
+        public static CsvReaderBuilder Builder(StringReader reader)
+        {
+            return new CsvReaderBuilder(reader);
+        }
+
+        public static CsvReaderBuilder Builder(TextReader reader)
+        {
+            return new CsvReaderBuilder(reader);
+        }
+
+        public static CsvReaderBuilder Builder(string filePathAndName)
+        {
+            return new CsvReaderBuilder(filePathAndName);
+        }
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="CsvReader" /> class.
         ///     Use CsvReader in using(){} block if possible, otherwise the dispose method (which closes the file handle) is only
@@ -115,7 +130,7 @@ namespace SimpleCsv
             fieldDelimiter,
             encoding)
         {
-            _SetChunkAndBufferSize(readChunkSize);
+            SetChunkAndBufferSize(readChunkSize);
         }
 
         /// <summary>
@@ -157,12 +172,9 @@ namespace SimpleCsv
         /// <exception cref="ArgumentNullException"><paramref name="textReader" /> is <c>null</c>.</exception>
         public CsvReader(TextReader textReader)
         {
-            if (textReader == null)
-            {
-                throw new ArgumentNullException(nameof(textReader), "The StreamReader you provided is null.");
-            }
-
-            this.textReader = textReader;
+            this.textReader = textReader ??
+                              throw new ArgumentNullException(nameof(textReader),
+                                  "The StreamReader you provided is null.");
         }
 
         /// <summary>
@@ -199,14 +211,13 @@ namespace SimpleCsv
         public CsvReader(TextReader textReader, char columnSeparator, string rowSeparator, char? fieldDelimiter,
             int readChunkSize) : this(textReader, columnSeparator, rowSeparator, fieldDelimiter)
         {
-            _SetChunkAndBufferSize(readChunkSize);
+            SetChunkAndBufferSize(readChunkSize);
         }
 
         // these overloads are for the convenience of the programmer only.
         // it should help to tell him that a StringReader exists and is
         // derived from a TextReader...
 
-        // ReSharper disable SuggestBaseTypeForParameter
         /// <summary>
         ///     Initializes a new instance of the <see cref="CsvReader" /> class.
         /// </summary>
@@ -214,12 +225,9 @@ namespace SimpleCsv
         /// <exception cref="ArgumentNullException"><paramref name="stringReader" /> is <c>null</c>.</exception>
         public CsvReader(StringReader stringReader)
         {
-            if (stringReader == null)
-            {
-                throw new ArgumentNullException(nameof(stringReader), "The StreamReader you provided is null.");
-            }
-
-            textReader = stringReader;
+            textReader = stringReader ??
+                         throw new ArgumentNullException(nameof(stringReader),
+                             "The StreamReader you provided is null.");
         }
 
         /// <summary>
@@ -258,6 +266,5 @@ namespace SimpleCsv
             readChunkSize)
         {
         }
-        // ReSharper restore SuggestBaseTypeForParameter
     }
 }

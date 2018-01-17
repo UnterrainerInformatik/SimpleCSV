@@ -43,7 +43,7 @@ namespace SimpleCsv
         /// <summary>
         ///     The default chunk size (bufferSize / 2 - DEFAULT_ROW_SEPARATOR)...
         /// </summary>
-        private const int DEFAULT_CHUNK_SIZE = 16384;
+        internal const int DEFAULT_CHUNK_SIZE = 16384;
 
         /// <summary>
         ///     The internal buffer that holds the data to be read or to be written.
@@ -86,15 +86,15 @@ namespace SimpleCsv
         ///     The preview-string consisting of the next 'length'
         ///     unhandled characters.
         /// </returns>
-        private string _Peek(int length)
+        private string Peek(int length)
         {
             lock (LockObject)
             {
-                StringBuilder sb = new StringBuilder();
-                for (int i = 1; i <= length; i++)
+                var sb = new StringBuilder();
+                for (var i = 1; i <= length; i++)
                 {
                     // nextChar has index: _nextCharBufferIndex...
-                    int index = nextCharBufferIndex + i;
+                    var index = nextCharBufferIndex + i;
                     if (index < buffer.Length && index >= 0)
                     {
                         sb.Append(buffer[index]);
@@ -106,7 +106,7 @@ namespace SimpleCsv
         }
 
         /// <summary>
-        ///     Does essentially the same as <see cref="_Peek" /> but counts and
+        ///     Does essentially the same as <see cref="Peek" /> but counts and
         ///     returns the current nextChar as well. Example: buffer=[1234] &
         ///     nextChar=0 then _PeekInclusiveNextChar(3) would return [012].
         /// </summary>
@@ -115,26 +115,26 @@ namespace SimpleCsv
         ///     The preview-string consisting of the next 'length'
         ///     unhandled characters.
         /// </returns>
-        private string _PeekInclusiveNextChar(int length)
+        private string PeekInclusiveNextChar(int length)
         {
             lock (LockObject)
             {
-                return nextChar + _Peek(length - 1);
+                return nextChar + Peek(length - 1);
             }
         }
 
-        private void _ReadNext()
+        private void ReadNext()
         {
             lock (LockObject)
             {
-                nextChar = _GetNextChar();
+                nextChar = GetNextChar();
                 // EOF is not reached
                 // AND the rest of the read chunk isn't long enough to contain a rowSeparator...
                 // in this case we have to read ahead and keep the existing characters...
                 if (nextChar != null && numberOfUnparsedChars + 1 < rowSeparator.Length)
                 {
                     // copy the buffer to a temp array...
-                    char[] temp = new char[numberOfUnparsedChars + 1];
+                    var temp = new char[numberOfUnparsedChars + 1];
                     Array.Copy(buffer, nextCharBufferIndex, temp, 0, numberOfUnparsedChars + 1);
                     // temp holds the unread chars plus the one just read.
                     // copy the temp-buffer back over the original buffer
@@ -142,7 +142,7 @@ namespace SimpleCsv
                     // we copied to the temp-buffer earlier on...
                     Array.Copy(temp, 0, buffer, 0, temp.Length);
 
-                    _ReadChunk(numberOfUnparsedChars + 1);
+                    ReadChunk(numberOfUnparsedChars + 1);
                     nextCharBufferIndex = 0;
                 }
             }
@@ -154,13 +154,13 @@ namespace SimpleCsv
         ///     _ReadNext(1).
         /// </summary>
         /// <param name="numberOfCharacters">The number of characters.</param>
-        private void _ReadNext(int numberOfCharacters)
+        private void ReadNext(int numberOfCharacters)
         {
             lock (LockObject)
             {
-                for (int i = 0; i < numberOfCharacters; i++)
+                for (var i = 0; i < numberOfCharacters; i++)
                 {
-                    _ReadNext();
+                    ReadNext();
                 }
             }
         }
@@ -173,27 +173,27 @@ namespace SimpleCsv
         ///     The next character or <c>null</c> if the end of the file is
         ///     reached.
         /// </returns>
-        private char? _GetNextChar()
+        private char? GetNextChar()
         {
             lock (LockObject)
             {
                 if (numberOfUnparsedChars > 0)
                 {
-                    char c = buffer[nextCharBufferIndex + 1];
+                    var c = buffer[nextCharBufferIndex + 1];
                     nextCharBufferIndex++;
                     numberOfUnparsedChars--;
                     return c;
                 }
 
                 // if the buffer is empty...
-                _ReadChunk(0);
+                ReadChunk(0);
                 nextCharBufferIndex = -1;
                 if (numberOfUnparsedChars <= 0)
                 {
                     return null;
                 }
 
-                return _GetNextChar();
+                return GetNextChar();
             }
         }
 
@@ -208,11 +208,11 @@ namespace SimpleCsv
         ///     The
         ///     <see cref="StreamReader" /> you provided is <c>null</c>.
         /// </exception>
-        private void _ReadChunk(int startIndex)
+        private void ReadChunk(int startIndex)
         {
             lock (LockObject)
             {
-                int readChars = textReader.ReadBlock(buffer, startIndex, chunkSize);
+                var readChars = textReader.ReadBlock(buffer, startIndex, chunkSize);
                 numberOfUnparsedChars += readChars;
             }
         }
@@ -223,31 +223,31 @@ namespace SimpleCsv
         /// <returns>
         ///     A string containing the next field of the underlying CSV.
         /// </returns>
-        private string _ReadField()
+        private string ReadField()
         {
             lock (LockObject)
             {
-                StringBuilder content = new StringBuilder();
-                bool isEscaped = false;
+                var content = new StringBuilder();
+                var isEscaped = false;
                 while (nextChar != null)
                 {
                     if (nextChar == fieldDelimiter)
                     {
-                        if (isEscaped && _Peek(1).Equals(fieldDelimiter + string.Empty))
+                        if (isEscaped && Peek(1).Equals(fieldDelimiter + string.Empty))
                         {
                             // double fieldDelimiter.
                             // write one of them, omit the other...
-                            _ReadNext();
+                            ReadNext();
                         }
                         else
                         {
                             isEscaped = !isEscaped;
-                            _ReadNext();
+                            ReadNext();
                             continue;
                         }
                     }
 
-                    if (_PeekInclusiveNextChar(rowSeparator.Length).Equals(rowSeparator) && !isEscaped)
+                    if (PeekInclusiveNextChar(rowSeparator.Length).Equals(rowSeparator) && !isEscaped)
                     {
                         // we are at the last field in a row...
                         // and therefore this is the end of the field...
@@ -261,7 +261,7 @@ namespace SimpleCsv
                     }
 
                     content.Append(nextChar);
-                    _ReadNext();
+                    ReadNext();
                 }
 
                 return content.ToString();
@@ -280,18 +280,18 @@ namespace SimpleCsv
         {
             lock (LockObject)
             {
-                List<string> fields = new List<string>();
+                var fields = new List<string>();
                 if (nextChar == null)
                 {
-                    _ReadNext();
+                    ReadNext();
                 }
 
-                while (nextChar != null && !_PeekInclusiveNextChar(rowSeparator.Length).Equals(rowSeparator))
+                while (nextChar != null && !PeekInclusiveNextChar(rowSeparator.Length).Equals(rowSeparator))
                 {
-                    fields.Add(_ReadField());
+                    fields.Add(ReadField());
                     if (nextChar == columnSeparator)
                     {
-                        _ReadNext();
+                        ReadNext();
 
                         // Without supression of this resharper error resharper tells us that the condition "_nextChar == null" in this
                         // case is always false.
@@ -299,7 +299,7 @@ namespace SimpleCsv
                         // Resharper doesn't detect that and the NUnit-test "TestEmptyFieldDelimiters" fails if omitted.
                         // So the problem is connected with empty fields between field-delimiters which are not detected correctly when omitted.
 // ReSharper disable ConditionIsAlwaysTrueOrFalse
-                        if (nextChar == null || _PeekInclusiveNextChar(rowSeparator.Length).Equals(rowSeparator))
+                        if (nextChar == null || PeekInclusiveNextChar(rowSeparator.Length).Equals(rowSeparator))
 // ReSharper restore ConditionIsAlwaysTrueOrFalse
                         {
                             fields.Add(string.Empty);
@@ -307,11 +307,11 @@ namespace SimpleCsv
                     }
                 }
 
-                if (_PeekInclusiveNextChar(rowSeparator.Length).Equals(rowSeparator))
+                if (PeekInclusiveNextChar(rowSeparator.Length).Equals(rowSeparator))
                 {
                     // reading fields stopped due to line end.
                     // omit the rowseperator...
-                    _ReadNext(rowSeparator.Length);
+                    ReadNext(rowSeparator.Length);
                 }
 
                 if (fields.Count == 0 && textReader.Peek() == -1)
@@ -333,8 +333,8 @@ namespace SimpleCsv
         {
             lock (LockObject)
             {
-                List<List<string>> data = new List<List<string>>();
-                List<string> row = ReadRow();
+                var data = new List<List<string>>();
+                var row = ReadRow();
                 while (row != null)
                 {
                     data.Add(row);
@@ -373,7 +373,7 @@ namespace SimpleCsv
         ///     Sets the size of the buffer and of the chunk.
         /// </summary>
         /// <param name="chunkSize">Size of the chunk.</param>
-        private void _SetChunkAndBufferSize(int chunkSize)
+        private void SetChunkAndBufferSize(int chunkSize)
         {
             this.chunkSize = chunkSize;
             if (chunkSize < rowSeparator.Length)

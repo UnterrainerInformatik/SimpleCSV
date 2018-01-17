@@ -129,7 +129,7 @@ namespace SimpleCsv
             isAppendMode,
             encoding)
         {
-            _SetChunkAndBufferSize(writeChunkSize);
+            SetChunkAndBufferSize(writeChunkSize);
             this.quotingBehavior = quotingBehavior;
         }
 
@@ -211,7 +211,7 @@ namespace SimpleCsv
             rowSeparator,
             fieldDelimiter)
         {
-            _SetChunkAndBufferSize(writeChunkSize);
+            SetChunkAndBufferSize(writeChunkSize);
             this.quotingBehavior = quotingBehavior;
         }
 
@@ -262,7 +262,7 @@ namespace SimpleCsv
         // it should help to tell him that a StringWriter exists and is
         // derived from a TextWriter...
 
-        // ReSharper disable SuggestBaseTypeForParameter
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="CsvWriter" /> class.
         /// </summary>
@@ -304,6 +304,5 @@ namespace SimpleCsv
             quotingBehavior)
         {
         }
-        // ReSharper restore SuggestBaseTypeForParameter
     }
 }

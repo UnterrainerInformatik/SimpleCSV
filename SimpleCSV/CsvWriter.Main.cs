@@ -95,7 +95,7 @@ namespace SimpleCsv
         ///     It does this only once (with the help to the boolean variable
         ///     <see cref="isInitialized" />.
         /// </summary>
-        private void _Initialize()
+        private void Initialize()
         {
             lock (LockObject)
             {
@@ -106,7 +106,7 @@ namespace SimpleCsv
                         usedFieldDelimiter = string.Empty + fieldDelimiter.Value;
                         doubleFieldDelimiter = string.Empty + fieldDelimiter.Value + fieldDelimiter.Value;
                     }
-
+                    
                     numberOfUnusedBufferCharacters = buffer.Length;
                     isInitialized = true;
                 }
@@ -118,13 +118,13 @@ namespace SimpleCsv
         ///     Flushes it if necessary.
         /// </summary>
         /// <param name="text">The text to write.</param>
-        private void _Write(string text)
+        private void WriteInternal(string text)
         {
             if (numberOfUnusedBufferCharacters < text.Length)
             {
                 // the buffer isn't large enough...
                 // we have to split, flush and add the rest after flushing...
-                string t = text;
+                var t = text;
                 while (!string.IsNullOrEmpty(t))
                 {
                     string sub;
@@ -139,15 +139,15 @@ namespace SimpleCsv
                         t = string.Empty;
                     }
 
-                    _Write(sub);
+                    WriteInternal(sub);
                 }
             }
             else
             {
                 // everything is allright. The buffer is big enough...
-                foreach (char c in text)
+                foreach (var c in text)
                 {
-                    _WriteToBuffer(c);
+                    WriteToBuffer(c);
                 }
 
                 if (numberOfUnusedBufferCharacters == 0)
@@ -175,16 +175,16 @@ namespace SimpleCsv
             textWriter?.Flush();
         }
 
-        private void _WriteToBuffer(char c)
+        private void WriteToBuffer(char c)
         {
             buffer[bufferCount] = c;
             bufferCount++;
             numberOfUnusedBufferCharacters--;
         }
 
-        private bool _IsUseFieldDelimiter(string csvData)
+        private bool IsUseFieldDelimiter(string csvData)
         {
-            bool isFieldDelimiterNeeded = csvData.Contains(usedFieldDelimiter) || csvData.Contains(rowSeparator) ||
+            var isFieldDelimiterNeeded = csvData.Contains(usedFieldDelimiter) || csvData.Contains(rowSeparator) ||
                                           csvData.Contains(string.Empty + columnSeparator);
             if (!string.IsNullOrEmpty(usedFieldDelimiter) &&
                 (isFieldDelimiterNeeded || quotingBehavior == QuotingBehavior.ALL))
@@ -213,7 +213,7 @@ namespace SimpleCsv
         {
             lock (LockObject)
             {
-                _Write(rowSeparator);
+                WriteInternal(rowSeparator);
                 isFirstFieldInRow = true;
             }
         }
@@ -247,23 +247,23 @@ namespace SimpleCsv
                 }
                 else
                 {
-                    _Write(columnSeparator.ToString());
+                    WriteInternal(columnSeparator.ToString());
                 }
 
-                string dataToWrite = csvData ?? string.Empty;
+                var dataToWrite = csvData ?? string.Empty;
 
-                _Initialize();
-                if (_IsUseFieldDelimiter(dataToWrite))
+                Initialize();
+                if (IsUseFieldDelimiter(dataToWrite))
                 {
                     // quote the field...
-                    _Write(usedFieldDelimiter);
+                    WriteInternal(usedFieldDelimiter);
                     // escape string delimiter...
-                    _Write(dataToWrite.Replace(usedFieldDelimiter, doubleFieldDelimiter));
-                    _Write(usedFieldDelimiter);
+                    WriteInternal(dataToWrite.Replace(usedFieldDelimiter, doubleFieldDelimiter));
+                    WriteInternal(usedFieldDelimiter);
                 }
                 else
                 {
-                    _Write(dataToWrite);
+                    WriteInternal(dataToWrite);
                 }
             }
         }
@@ -278,7 +278,7 @@ namespace SimpleCsv
         {
             lock (LockObject)
             {
-                _Initialize();
+                Initialize();
                 Write(csvData);
                 WriteLine();
             }
@@ -299,11 +299,11 @@ namespace SimpleCsv
                     return;
                 }
 
-                _Initialize();
-                int count = csvData.Count;
-                for (int i = 0; i < count; i++)
+                Initialize();
+                var count = csvData.Count;
+                for (var i = 0; i < count; i++)
                 {
-                    string fieldData = csvData[i];
+                    var fieldData = csvData[i];
                     Write(fieldData);
                 }
             }
@@ -318,11 +318,11 @@ namespace SimpleCsv
         {
             lock (LockObject)
             {
-                _Initialize();
-                int count = csvData.Count;
-                for (int i = 0; i < count; i++)
+                Initialize();
+                var count = csvData.Count;
+                for (var i = 0; i < count; i++)
                 {
-                    List<string> rowData = csvData[i];
+                    var rowData = csvData[i];
                     if (i == count - 1)
                     {
                         // this is the last one...
@@ -340,7 +340,7 @@ namespace SimpleCsv
         ///     Sets the size of the buffer and of the chunk.
         /// </summary>
         /// <param name="size">Size of the chunk.</param>
-        private void _SetChunkAndBufferSize(int size)
+        private void SetChunkAndBufferSize(int size)
         {
             chunkSize = size;
             if (size < 1)

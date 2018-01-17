@@ -38,17 +38,17 @@ namespace SimpleCsv
         /// <summary>
         ///     The default value for the column separator.
         /// </summary>
-        protected const char DEFAULT_COLUMN_SEPARATOR = ';';
+        protected internal const char DEFAULT_COLUMN_SEPARATOR = ';';
 
         /// <summary>
         ///     The default value for the row separator.
         /// </summary>
-        protected const string DEFAULT_ROW_SEPARATOR = "\r\n";
+        protected internal const string DEFAULT_ROW_SEPARATOR = "\r\n";
 
         /// <summary>
         ///     The default value for the field delimiter.
         /// </summary>
-        protected static readonly char? DEFAULT_FIELD_DELIMITER = '"';
+        protected internal static readonly char? DEFAULT_FIELD_DELIMITER = '"';
 
         /// <summary>
         ///     This is the lock-object for this class.
