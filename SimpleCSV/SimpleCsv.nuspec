@@ -22,6 +22,6 @@
     <releaseNotes></releaseNotes>
     <copyright>Copyright 2018</copyright>
     <language>en-US</language>
-    <tags>comma separated values csv reader writer tools buffer buffered stream convenient</tags>
+    <tags>comma separated values csv reader writer tools buffer buffered stream convenient quoting fluent chaining</tags>
   </metadata>
 </package>
