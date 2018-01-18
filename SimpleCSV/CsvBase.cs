@@ -29,45 +29,18 @@ using JetBrains.Annotations;
 
 namespace SimpleCsv
 {
-    /// <summary>
-    ///     Base class for all classes that handle CSV documents.
-    /// </summary>
     [PublicAPI]
     public abstract class CsvBase
     {
-        /// <summary>
-        ///     The default value for the column separator.
-        /// </summary>
-        protected internal const char DEFAULT_COLUMN_SEPARATOR = ';';
-
-        /// <summary>
-        ///     The default value for the row separator.
-        /// </summary>
-        protected internal const string DEFAULT_ROW_SEPARATOR = "\r\n";
-
-        /// <summary>
-        ///     The default value for the field delimiter.
-        /// </summary>
-        protected internal static readonly char? DEFAULT_FIELD_DELIMITER = '"';
-
-        /// <summary>
-        ///     This is the lock-object for this class.
-        /// </summary>
         protected readonly object LockObject = new object();
 
-        /// <summary>
-        ///     The value of the column separator that is used by the program.
-        /// </summary>
+        protected internal const char DEFAULT_COLUMN_SEPARATOR = ';';
+        protected internal const string DEFAULT_ROW_SEPARATOR = "\r\n";
+        protected internal static readonly char? DEFAULT_FIELD_DELIMITER = '"';
         protected char columnSeparator = DEFAULT_COLUMN_SEPARATOR;
-
-        /// <summary>
-        ///     The value of the field delimiter that is used by the program.
-        /// </summary>
         protected char? fieldDelimiter = DEFAULT_FIELD_DELIMITER;
-
-        /// <summary>
-        ///     The value of the row separator that is used by the program.
-        /// </summary>
         protected string rowSeparator = DEFAULT_ROW_SEPARATOR;
+
+        protected bool closeStream;
     }
 }

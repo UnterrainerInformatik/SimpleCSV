@@ -30,7 +30,7 @@ using System.Collections.Generic;
 using System.IO;
 using JetBrains.Annotations;
 
-namespace SimpleCsv
+namespace SimpleCsv.Writer
 {
     /// <summary>
     ///     This data-structure represents a comma-separated-values file.
@@ -40,54 +40,15 @@ namespace SimpleCsv
     public partial class CsvWriter : CsvBase, IDisposable
     {
         private TextWriter textWriter;
-
-        /// <summary>
-        ///     The default chunk size (bufferSize / 2 - DEFAULT_ROW_SEPARATOR)...
-        /// </summary>
-        private const int DEFAULT_CHUNK_SIZE = 1;
-
-        /// <summary>
-        ///     The internal buffer that holds the data to be read or to be written.
-        ///     Default value is the chunk size + the length of the default field delimiter.
-        /// </summary>
+        internal const int DEFAULT_CHUNK_SIZE = 1;
         private char[] buffer = new char[DEFAULT_CHUNK_SIZE];
-
-        /// <summary>
-        ///     The definitive chunkSize preset with the default value.
-        /// </summary>
         private int chunkSize = DEFAULT_CHUNK_SIZE;
-
         private int bufferCount;
         private int numberOfUnusedBufferCharacters;
-
-        /// <summary>
-        ///     Boolean variable that tells the program if it is necessary to insert
-        ///     a columnSeparator or not...
-        /// </summary>
         private bool isFirstFieldInRow = true;
-
-        /// <summary>
-        ///     Tells the program if the fieldDelimiter is initialized (set) or
-        ///     not to execute the initializations only once...
-        /// </summary>
         private bool isInitialized;
-
-        /// <summary>
-        ///     Is the fieldDelimiter that is really used (string.Empty if it was
-        ///     <c>null</c>, etc...)...
-        /// </summary>
         private string usedFieldDelimiter = string.Empty;
-
-        /// <summary>
-        ///     Prevents multiple concatenation of the escaped fieldDelimiter by
-        ///     doing it once...
-        /// </summary>
         private string doubleFieldDelimiter = string.Empty;
-
-        /// <summary>
-        ///     Tells the program to always set quotes (fieldDelimiters) or only if
-        ///     necessary...
-        /// </summary>
         private readonly QuotingBehavior quotingBehavior = QuotingBehavior.MINIMAL;
 
         /// <summary>
@@ -99,17 +60,15 @@ namespace SimpleCsv
         {
             lock (LockObject)
             {
-                if (!isInitialized)
+                if (isInitialized) return;
+                if (fieldDelimiter.HasValue)
                 {
-                    if (fieldDelimiter.HasValue)
-                    {
-                        usedFieldDelimiter = string.Empty + fieldDelimiter.Value;
-                        doubleFieldDelimiter = string.Empty + fieldDelimiter.Value + fieldDelimiter.Value;
-                    }
-                    
-                    numberOfUnusedBufferCharacters = buffer.Length;
-                    isInitialized = true;
+                    usedFieldDelimiter = string.Empty + fieldDelimiter.Value;
+                    doubleFieldDelimiter = string.Empty + fieldDelimiter.Value + fieldDelimiter.Value;
                 }
+
+                numberOfUnusedBufferCharacters = buffer.Length;
+                isInitialized = true;
             }
         }
 
@@ -160,19 +119,21 @@ namespace SimpleCsv
         /// <summary>
         ///     Flushes all internal buffers to the underlying writer.
         /// </summary>
-        public void Flush()
+        public CsvWriter Flush()
         {
             textWriter.Write(buffer, 0, bufferCount);
             bufferCount = 0;
             numberOfUnusedBufferCharacters = buffer.Length;
+            return this;
         }
 
         /// <summary>
         ///     Calls flush on the underlying text-writer.
         /// </summary>
-        public void FlushUnderlyingWriter()
+        public CsvWriter FlushUnderlyingWriter()
         {
             textWriter?.Flush();
+            return this;
         }
 
         private void WriteToBuffer(char c)
@@ -185,7 +146,7 @@ namespace SimpleCsv
         private bool IsUseFieldDelimiter(string csvData)
         {
             var isFieldDelimiterNeeded = csvData.Contains(usedFieldDelimiter) || csvData.Contains(rowSeparator) ||
-                                          csvData.Contains(string.Empty + columnSeparator);
+                                         csvData.Contains(string.Empty + columnSeparator);
             if (!string.IsNullOrEmpty(usedFieldDelimiter) &&
                 (isFieldDelimiterNeeded || quotingBehavior == QuotingBehavior.ALL))
             {
@@ -198,24 +159,28 @@ namespace SimpleCsv
         /// <summary>
         ///     Writes a columnSeparator.
         /// </summary>
-        public void Write()
+        public CsvWriter Write()
         {
             lock (LockObject)
             {
                 Write(string.Empty);
             }
+
+            return this;
         }
 
         /// <summary>
         ///     Writes a rowSeparator.
         /// </summary>
-        public void WriteLine()
+        public CsvWriter WriteLine()
         {
             lock (LockObject)
             {
                 WriteInternal(rowSeparator);
                 isFirstFieldInRow = true;
             }
+
+            return this;
         }
 
         /// <summary>
@@ -223,13 +188,15 @@ namespace SimpleCsv
         ///     the new entry if necessary. Appends a rowSeparator at the end.
         /// </summary>
         /// <param name="csvData">The CSV data.</param>
-        public void WriteLine(string csvData)
+        public CsvWriter WriteLine(string csvData)
         {
             lock (LockObject)
             {
                 Write(csvData);
                 WriteLine();
             }
+
+            return this;
         }
 
         /// <summary>
@@ -237,7 +204,7 @@ namespace SimpleCsv
         ///     the new entry if necessary.
         /// </summary>
         /// <param name="csvData">The CSV data.</param>
-        public void Write(string csvData)
+        public CsvWriter Write(string csvData)
         {
             lock (LockObject)
             {
@@ -266,6 +233,8 @@ namespace SimpleCsv
                     WriteInternal(dataToWrite);
                 }
             }
+
+            return this;
         }
 
         /// <summary>
@@ -274,7 +243,7 @@ namespace SimpleCsv
         ///     row, no field inserted yet).
         /// </summary>
         /// <param name="csvData">The CSV data.</param>
-        public void WriteLine(List<string> csvData)
+        public CsvWriter WriteLine(List<string> csvData)
         {
             lock (LockObject)
             {
@@ -282,6 +251,8 @@ namespace SimpleCsv
                 Write(csvData);
                 WriteLine();
             }
+
+            return this;
         }
 
         /// <summary>
@@ -290,13 +261,13 @@ namespace SimpleCsv
         ///     row, no field inserted yet).
         /// </summary>
         /// <param name="csvData">The CSV data.</param>
-        public void Write(List<string> csvData)
+        public CsvWriter Write(List<string> csvData)
         {
             lock (LockObject)
             {
                 if (csvData == null || csvData.Count == 0)
                 {
-                    return;
+                    return this;
                 }
 
                 Initialize();
@@ -307,6 +278,8 @@ namespace SimpleCsv
                     Write(fieldData);
                 }
             }
+
+            return this;
         }
 
         /// <summary>
@@ -314,7 +287,7 @@ namespace SimpleCsv
         ///     at least in a newline-position (empty row, no field inserted yet).
         /// </summary>
         /// <param name="csvData">The CSV data.</param>
-        public void Write(List<List<string>> csvData)
+        public CsvWriter Write(List<List<string>> csvData)
         {
             lock (LockObject)
             {
@@ -334,6 +307,8 @@ namespace SimpleCsv
                     }
                 }
             }
+
+            return this;
         }
 
         /// <summary>
@@ -351,22 +326,15 @@ namespace SimpleCsv
             buffer = new char[chunkSize];
         }
 
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing,
-        ///     releasing, or resetting unmanaged resources.
-        /// </summary>
         public void Dispose()
         {
-            if (textWriter == null)
-            {
-                return;
-            }
-
             Flush();
-            textWriter.Flush();
-            textWriter.Close();
-            textWriter.Dispose();
-            textWriter = null;
+            textWriter?.Flush();
+
+            if (!closeStream)
+                return;
+            textWriter?.Close();
+            textWriter?.Dispose();
         }
     }
 }

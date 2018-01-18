@@ -31,7 +31,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
-using SimpleCsv;
+using SimpleCsv.Reader;
 
 namespace NUnitTests
 {
@@ -48,7 +48,7 @@ namespace NUnitTests
         {
             Assert.Throws<ArgumentException>(delegate
             {
-                CsvReader.Builder(new StringReader("A;;A;T;;\r\nGreat")).Endcoding(Encoding.UTF8).Build();
+                CsvReader.Builder(new StringReader("A;;A;T;;\r\nGreat")).Encoding(Encoding.UTF8).Build();
             });
         }
 
@@ -57,7 +57,7 @@ namespace NUnitTests
         {
             Assert.Throws<ArgumentException>(delegate
             {
-                CsvReader.Builder(new StringReader("A;;A;T;;\r\nGreat")).Endcoding(Encoding.UTF8).Build();
+                CsvReader.Builder(new StringReader("A;;A;T;;\r\nGreat")).Encoding(Encoding.UTF8).Build();
             });
         }
 
@@ -245,7 +245,7 @@ namespace NUnitTests
             var csvToWrite = WriteCsv(csvData, ';', "tooLong" + NEW_LINE);
             stringReader = new StringReader(csvToWrite);
             csvReader = CsvReader.Builder(stringReader).ColumnSeparator(';').RowSeparator("tooLong" + NEW_LINE)
-                .FieldDelimiter('\"').ReadChunkSize(1).Build();
+                .FieldDelimiter('\"').ChunkSize(1).Build();
             // ChunkSize should be RowSeparator.length after this constructor call ("tooLong\r\n" = 9 characters).
             // ReadAllRows calls ReadRow consecutively...
             var csv = csvReader.ReadAllRows();

@@ -25,13 +25,34 @@
 // For more information, please refer to <http://unlicense.org>
 // ***************************************************************************
 
+using System;
 using System.IO;
 using System.Text;
 
-namespace SimpleCsv
+namespace SimpleCsv.Writer
 {
     public partial class CsvWriter
     {
+        public static CsvWriterBuilder Builder(TextWriter writer)
+        {
+            return new CsvWriterBuilder(writer);
+        }
+
+        public static CsvWriterBuilder Builder(StringBuilder builder)
+        {
+            return new CsvWriterBuilder(builder);
+        }
+
+        public static CsvWriterBuilder Builder(StringWriter writer)
+        {
+            return new CsvWriterBuilder(writer);
+        }
+
+        public static CsvWriterBuilder Builder(string filePathAndName)
+        {
+            return new CsvWriterBuilder(filePathAndName);
+        }
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="CsvWriter" /> class.
         ///     Use CsvWriter in using(){} block if possible (otherwise the dispose method (which closes the file handle) is only
@@ -45,6 +66,7 @@ namespace SimpleCsv
         public CsvWriter(string filePathAndName, bool isAppendMode, Encoding encoding)
         {
             textWriter = new StreamWriter(filePathAndName, isAppendMode, encoding);
+            closeStream = true;
         }
 
         /// <summary>
@@ -171,7 +193,9 @@ namespace SimpleCsv
         /// <param name="textWriter">The text writer.</param>
         public CsvWriter(TextWriter textWriter)
         {
-            this.textWriter = textWriter;
+            this.textWriter = textWriter ??
+                              throw new ArgumentNullException(nameof(textWriter),
+                                  "The TextWriter you provided is null.");
         }
 
         /// <summary>
@@ -222,6 +246,7 @@ namespace SimpleCsv
         public CsvWriter(StringBuilder stringBuilder)
         {
             textWriter = new StringWriter(stringBuilder);
+            closeStream = true;
         }
 
         /// <summary>
@@ -231,9 +256,10 @@ namespace SimpleCsv
         /// <param name="columnSeparator">The column separator.</param>
         /// <param name="rowSeparator">The row separator.</param>
         /// <param name="fieldDelimiter">The field delimiter.</param>
-        public CsvWriter(StringBuilder stringBuilder, char columnSeparator, string rowSeparator, char fieldDelimiter) :
+        public CsvWriter(StringBuilder stringBuilder, char columnSeparator, string rowSeparator, char? fieldDelimiter) :
             this(new StringWriter(stringBuilder), columnSeparator, rowSeparator, fieldDelimiter)
         {
+            closeStream = true;
         }
 
         /// <summary>
@@ -248,7 +274,7 @@ namespace SimpleCsv
         ///     default value is 1)
         /// </param>
         /// <param name="quotingBehavior">The quoting behavior.</param>
-        public CsvWriter(StringBuilder stringBuilder, char columnSeparator, string rowSeparator, char fieldDelimiter,
+        public CsvWriter(StringBuilder stringBuilder, char columnSeparator, string rowSeparator, char? fieldDelimiter,
             int writeChunkSize, QuotingBehavior quotingBehavior) : this(new StringWriter(stringBuilder),
             columnSeparator,
             rowSeparator,
@@ -256,6 +282,7 @@ namespace SimpleCsv
             writeChunkSize,
             quotingBehavior)
         {
+            closeStream = true;
         }
 
         // these overloads are for the convenience of the programmer only.
@@ -278,7 +305,7 @@ namespace SimpleCsv
         /// <param name="columnSeparator">The column separator.</param>
         /// <param name="rowSeparator">The row separator.</param>
         /// <param name="fieldDelimiter">The field delimiter.</param>
-        public CsvWriter(StringWriter stringWriter, char columnSeparator, string rowSeparator, char fieldDelimiter) :
+        public CsvWriter(StringWriter stringWriter, char columnSeparator, string rowSeparator, char? fieldDelimiter) :
             this((TextWriter) stringWriter, columnSeparator, rowSeparator, fieldDelimiter)
         {
         }
@@ -295,7 +322,7 @@ namespace SimpleCsv
         ///     default value is 1)
         /// </param>
         /// <param name="quotingBehavior">The quoting behavior.</param>
-        public CsvWriter(StringWriter stringWriter, char columnSeparator, string rowSeparator, char fieldDelimiter,
+        public CsvWriter(StringWriter stringWriter, char columnSeparator, string rowSeparator, char? fieldDelimiter,
             int writeChunkSize, QuotingBehavior quotingBehavior) : this((TextWriter) stringWriter,
             columnSeparator,
             rowSeparator,

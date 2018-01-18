@@ -27,42 +27,39 @@
 
 using System;
 using System.IO;
-using System.Text;
-using JetBrains.Annotations;
 
-namespace SimpleCsv
+namespace SimpleCsv.Reader
 {
-    public class CsvReaderBuilder
+    public class CsvReaderBuilder : CsvBuilderBase<CsvReaderBuilder>
     {
         private readonly StringReader stringReader;
         private readonly TextReader textReader;
         private readonly string filePathAndName;
 
-        private char columnSeparator = CsvBase.DEFAULT_COLUMN_SEPARATOR;
-        private string rowSeparator = CsvBase.DEFAULT_ROW_SEPARATOR;
-        private char? fieldDelimiter = CsvBase.DEFAULT_FIELD_DELIMITER;
-        private int readChunkSize = CsvReader.DEFAULT_CHUNK_SIZE;
-        [CanBeNull] private Encoding encoding;
+        private CsvReaderBuilder()
+        {
+            chunkSize = CsvReader.DEFAULT_CHUNK_SIZE;
+        }
 
-        public CsvReaderBuilder(StringReader stringReader)
+        public CsvReaderBuilder(StringReader stringReader) : this()
         {
             this.stringReader = stringReader;
         }
 
-        public CsvReaderBuilder(TextReader textReader)
+        public CsvReaderBuilder(TextReader textReader) : this()
         {
             this.textReader = textReader;
         }
 
-        public CsvReaderBuilder(string filePathAndName)
+        public CsvReaderBuilder(string filePathAndName) : this()
         {
             this.filePathAndName = filePathAndName;
         }
 
         /// <summary>
-        ///     Builds an instance of <see cref="CsvReader" />.
+        ///     Builds an instance of <see cref="Reader.CsvReader" />.
         /// </summary>
-        /// <returns>A <see cref="CsvReader" /></returns>
+        /// <returns>A <see cref="Reader.CsvReader" /></returns>
         public CsvReader Build()
         {
             if (stringReader != null)
@@ -70,7 +67,7 @@ namespace SimpleCsv
                 if (encoding != null)
                     throw new ArgumentException(
                         "Setting the encoding doesn't help you since the encoding is set in the StringReader you passed.");
-                return new CsvReader(stringReader, columnSeparator, rowSeparator, fieldDelimiter, readChunkSize);
+                return new CsvReader(stringReader, columnSeparator, rowSeparator, fieldDelimiter, chunkSize);
             }
 
             if (textReader != null)
@@ -78,7 +75,7 @@ namespace SimpleCsv
                 if (encoding != null)
                     throw new ArgumentException(
                         "Setting the encoding doesn't help you since the encoding is set in the TextReader you passed.");
-                return new CsvReader(textReader, columnSeparator, rowSeparator, fieldDelimiter, readChunkSize);
+                return new CsvReader(textReader, columnSeparator, rowSeparator, fieldDelimiter, chunkSize);
             }
 
             if (filePathAndName != null)
@@ -88,36 +85,6 @@ namespace SimpleCsv
 
             throw new ArgumentException(
                 "You have to at least specify a StringReader, TextReader or filePathAndName different than null.");
-        }
-
-        public CsvReaderBuilder ColumnSeparator(char separator)
-        {
-            columnSeparator = separator;
-            return this;
-        }
-
-        public CsvReaderBuilder RowSeparator(string separator)
-        {
-            rowSeparator = separator;
-            return this;
-        }
-
-        public CsvReaderBuilder FieldDelimiter(char? delimiter)
-        {
-            fieldDelimiter = delimiter;
-            return this;
-        }
-
-        public CsvReaderBuilder ReadChunkSize(int size)
-        {
-            readChunkSize = size;
-            return this;
-        }
-
-        public CsvReaderBuilder Endcoding(Encoding e)
-        {
-            encoding = e;
-            return this;
         }
     }
 }

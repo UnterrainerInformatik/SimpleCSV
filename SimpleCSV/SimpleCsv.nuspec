@@ -13,7 +13,7 @@
     <description>
 		This project helps you to read and write CSV (Comma Separated Values) files in your program.
 		Those files are legacy, but many developers still use them because of their readability and because every sheet-calculation program can perfectly edit them.
-		With the classes in this project you can read/write them via a stream, so that not every byte of the CSV has to be in memory beforehand and they provide nice and fluent interfaces for all functions.
+		With the classes in this project you can read/write them via a stream, so that not every byte of the CSV has to be in memory beforehand and they provide nice and fluent interfaces for all functions, they are well tested (visit the project-page) and they are capable of reading and writing quoted values.
 		Give it a try.
 	</description>
     <summary>

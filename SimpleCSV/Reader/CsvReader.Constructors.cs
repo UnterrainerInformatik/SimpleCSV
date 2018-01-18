@@ -29,9 +29,9 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace SimpleCsv
+namespace SimpleCsv.Reader
 {
-    public partial class CsvReader : CsvBase
+    public partial class CsvReader
     {
         public static CsvReaderBuilder Builder(StringReader reader)
         {
@@ -49,7 +49,7 @@ namespace SimpleCsv
         }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="CsvReader" /> class.
+        ///     Initializes a new instance of the <see cref="Reader.CsvReader" /> class.
         ///     Use CsvReader in using(){} block if possible, otherwise the dispose method (which closes the file handle) is only
         ///     called by the garbage collector which may take a while.
         /// </summary>
@@ -58,6 +58,7 @@ namespace SimpleCsv
         public CsvReader(string filePathAndName, Encoding encoding)
         {
             textReader = new StreamReader(filePathAndName, encoding);
+            closeStream = true;
         }
 
         /// <summary>
@@ -169,7 +170,7 @@ namespace SimpleCsv
         ///     called by the garbage collector which may take a while.
         /// </summary>
         /// <param name="textReader">The text reader.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="textReader" /> is <c>null</c>.</exception>
+        /// <exception cref="CsvReader"><paramref name="textReader" /> is <c>null</c>.</exception>
         public CsvReader(TextReader textReader)
         {
             this.textReader = textReader ??
@@ -222,7 +223,7 @@ namespace SimpleCsv
         ///     Initializes a new instance of the <see cref="CsvReader" /> class.
         /// </summary>
         /// <param name="stringReader">The string reader.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="stringReader" /> is <c>null</c>.</exception>
+        /// <exception cref="CsvReader"><paramref name="stringReader" /> is <c>null</c>.</exception>
         public CsvReader(StringReader stringReader)
         {
             textReader = stringReader ??
@@ -231,7 +232,7 @@ namespace SimpleCsv
         }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="CsvReader" /> class.
+        ///     Initializes a new instance of the <see cref="Reader.CsvReader" /> class.
         /// </summary>
         /// <param name="stringReader">The string reader.</param>
         /// <param name="columnSeparator">The column separator.</param>
@@ -243,7 +244,7 @@ namespace SimpleCsv
         }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="CsvReader" /> class.
+        ///     Initializes a new instance of the <see cref="Reader.CsvReader" /> class.
         /// </summary>
         /// <param name="stringReader">The string reader.</param>
         /// <param name="columnSeparator">The column separator.</param>

@@ -31,47 +31,22 @@ using System.IO;
 using System.Text;
 using JetBrains.Annotations;
 
-namespace SimpleCsv
+namespace SimpleCsv.Reader
 {
     /// <summary>
     ///     This data-structure represents a comma-separated-values file.
     ///     It helps in dealing with such files and delivers various manipulation routines.
     /// </summary>
     [PublicAPI]
-    public partial class CsvReader : IDisposable
+    public partial class CsvReader : CsvBase, IDisposable
     {
-        /// <summary>
-        ///     The default chunk size (bufferSize / 2 - DEFAULT_ROW_SEPARATOR)...
-        /// </summary>
         internal const int DEFAULT_CHUNK_SIZE = 16384;
-
-        /// <summary>
-        ///     The internal buffer that holds the data to be read or to be written.
-        ///     Default value is the chunk size + the length of the default field delimiter.
-        /// </summary>
         private char[] buffer = new char[DEFAULT_CHUNK_SIZE + 2];
-
-        /// <summary>
-        ///     The definitive chunkSize preset with the default value.
-        /// </summary>
-        private int chunkSize = DEFAULT_CHUNK_SIZE;
-
         private TextReader textReader;
-
-        /// <summary>
-        ///     The next character to be parsed.
-        /// </summary>
         private char? nextChar;
-
-        /// <summary>
-        ///     The index of the next character in the buffer.
-        /// </summary>
         private int nextCharBufferIndex;
-
-        /// <summary>
-        ///     The number of unparsed characters in the buffer.
-        /// </summary>
         private int numberOfUnparsedChars;
+        private int chunkSize = DEFAULT_CHUNK_SIZE;
 
         /// <summary>
         ///     Peeks into the buffer where all unhandled characters reside and
@@ -372,32 +347,24 @@ namespace SimpleCsv
         /// <summary>
         ///     Sets the size of the buffer and of the chunk.
         /// </summary>
-        /// <param name="chunkSize">Size of the chunk.</param>
-        private void SetChunkAndBufferSize(int chunkSize)
+        /// <param name="c">Size of the chunk.</param>
+        private void SetChunkAndBufferSize(int c)
         {
-            this.chunkSize = chunkSize;
+            chunkSize = c;
             if (chunkSize < rowSeparator.Length)
             {
-                this.chunkSize = rowSeparator.Length;
+                chunkSize = rowSeparator.Length;
             }
 
-            buffer = new char[this.chunkSize + rowSeparator.Length];
+            buffer = new char[chunkSize + rowSeparator.Length];
         }
 
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing,
-        ///     releasing, or resetting unmanaged resources.
-        /// </summary>
         public void Dispose()
         {
-            if (textReader == null)
-            {
+            if (!closeStream)
                 return;
-            }
-
-            textReader.Close();
-            textReader.Dispose();
-            textReader = null;
+            textReader?.Close();
+            textReader?.Dispose();
         }
     }
 }

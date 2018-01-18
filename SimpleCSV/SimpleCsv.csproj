@@ -45,11 +45,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CsvBase.cs" />
-    <Compile Include="CsvReader.Constructors.cs" />
-    <Compile Include="CsvReader.Main.cs" />
-    <Compile Include="CsvReaderBuilder.cs" />
-    <Compile Include="CsvWriter.Constructors.cs" />
-    <Compile Include="CsvWriter.Main.cs" />
+    <Compile Include="CsvBuilderBase.cs" />
+    <Compile Include="Reader\CsvReader.Constructors.cs" />
+    <Compile Include="Reader\CsvReader.Main.cs" />
+    <Compile Include="Reader\CsvReaderBuilder.cs" />
+    <Compile Include="Writer\CsvWriterBuilder.cs" />
+    <Compile Include="Writer\CsvWriter.Constructors.cs" />
+    <Compile Include="Writer\CsvWriter.Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QuotingBehaviour.cs" />
   </ItemGroup>
